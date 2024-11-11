@@ -1,4 +1,4 @@
-from src.any_tokenizers import AutoAnyTokenizer
+from src.any_tokenizers import AutoAnyTokenizer, ImagePreprocessConfig
 from datasets import get_dataset_config_names, load_dataset
 import os
 from functools import partial
@@ -10,12 +10,14 @@ tokenizer_name = "nvidia/Cosmos-Tokenizer-DI16x16"
 tokenizer = AutoAnyTokenizer.from_pretrained(tokenizer_name, device="cuda")
 output_dir = "/data3/heegyu/leopard-instruct-cosmos-di16"
 
+config = ImagePreprocessConfig(
+    max_size=512,
+    crop_size=512,
+    multiple_of=128,
+)
+
 def tokenizer_images(item, subset: str):
-    # return {
-    #     "images": [tokenizer.encode_image(image) for image in item["images"]],
-    #     "subset": subset
-    # }
-    images = [tokenizer.encode(image) for image in item["images"]]
+    images = [tokenizer.encode(image, config=config) for image in item["images"]]
     item["image_token_shapes"] = [image.shape for image in images]
     item["images"] = [image.cpu().tolist() for image in images]
     item["subset"] = subset
