@@ -1,5 +1,5 @@
 from ..base import BaseImageTokenizer, BaseImageGenerator
-from ..base.utils import load_and_preprocess_images
+from ..base.utils import load_and_preprocess_images, ImagePreprocessConfig
 from typing import List, Union
 from PIL.Image import Image, fromarray
 import numpy as np
@@ -55,12 +55,12 @@ class BaseCosmosTokenizer(BaseImageTokenizer, BaseImageGenerator):
 
 class CosmosDITokenizer(BaseCosmosTokenizer):
     @torch.no_grad()
-    def encode(self, x: Union[str, Image], **kwargs):
-        return self.batch_encode([x], **kwargs)
+    def encode(self, x: Union[str, Image], config: ImagePreprocessConfig, **kwargs):
+        return self.batch_encode([x], config, **kwargs)[0]
     
     @torch.no_grad()
-    def batch_encode(self, x: List[Union[str, Image]], **kwargs):
-        images = load_and_preprocess_images(x)
+    def batch_encode(self, x: List[Union[str, Image]], config: ImagePreprocessConfig = ImagePreprocessConfig(), **kwargs):
+        images = load_and_preprocess_images(x, config=config)
         images = images.to(torch.bfloat16).to(self.device)
         codes, _ = self.model.encode(images)
         return codes
@@ -79,12 +79,13 @@ class CosmosDITokenizer(BaseCosmosTokenizer):
 
 class CosmosCITokenizer(BaseCosmosTokenizer):
     @torch.no_grad()
-    def encode(self, x: Union[str, Image], **kwargs):
-        return self.batch_encode([x], **kwargs)
+    def encode(self, x: Union[str, Image], config: ImagePreprocessConfig, **kwargs):
+        return self.batch_encode([x], config, **kwargs)[0]
+    
     
     @torch.no_grad()
-    def batch_encode(self, x: List[Union[str, Image]], **kwargs):
-        images = load_and_preprocess_images(x)
+    def batch_encode(self, x: List[Union[str, Image]], config: ImagePreprocessConfig = ImagePreprocessConfig(), **kwargs):
+        images = load_and_preprocess_images(x, config=config)
         images = images.to(torch.bfloat16).to(self.device)
         (codes,)= self.model.encode(images)
         return codes

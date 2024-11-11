@@ -4,13 +4,38 @@ import numpy as np
 import torchvision.transforms as transforms
 import PIL.Image as Image
 import math
+from dataclasses import dataclass
 
 
+@dataclass
+class ImagePreprocessConfig:
+    """
+    Image preprocess configuration.
+    Args:
+        max_size (int): Maximum size of the image.
+        crop_size (int): Crop size of the image.
+        multiple_of (int): Multiple of the image size.
+    """
+    max_size: int = None
+    crop_size: int = None
+    multiple_of: int = 1
+    image_type: str = "RGB"
+
+    def to_transform(self):
+        """
+        Convert the configuration to a transform function.
+        Returns:
+            callable: Transform function.
+        """
+        transform = []
+        if self.max_size:
+            transform.append(ConditionalResizeAndCrop(self.max_size, self.crop_size, self.multiple_of))
+        transform.append(transforms.ToTensor())
+        return transforms.Compose(transform)
 
 def load_and_preprocess_images(
         images: List[Union[str, Image.Image]],
-        preprocess_function: callable = transforms.ToTensor(),
-        image_type: str = "RGB",
+        config: ImagePreprocessConfig = ImagePreprocessConfig(),
         return_tensor: str = "pt",
         ) -> Union[torch.Tensor, Tuple[torch.Tensor]]:
     """
@@ -23,11 +48,11 @@ def load_and_preprocess_images(
 
     images = [Image.open(img) if isinstance(img, str) else img for img in images]
     
-    if image_type:
-        images = [image.convert(image_type) for image in images]
+    if config.image_type:
+        images = [image.convert(config.image_type) for image in images]
 
-    if preprocess_function:
-        images = [preprocess_function(img) for img in images]
+    preprocess_function = config.to_transform()
+    images = [preprocess_function(img) for img in images]
     
     if return_tensor == "pt":
         return torch.stack(images)
@@ -115,8 +140,7 @@ def video_to_pil_images(video_path):
 
 def load_and_preprocess_videos(
         video_paths: Union[str, List[str]],
-        preprocess_function: callable = transforms.ToTensor(),
-        image_type: str = "RGB",
+        config: ImagePreprocessConfig = ImagePreprocessConfig(),
         return_tensor: str = "pt",
         ) -> Union[torch.Tensor, Tuple[torch.Tensor]]:
     """
@@ -132,6 +156,6 @@ def load_and_preprocess_videos(
     video_images = []
     for video_path in video_paths:
         pil_images = video_to_pil_images(video_path)
-        video_images.append(load_and_preprocess_images(pil_images, preprocess_function, image_type, return_tensor))
+        video_images.append(load_and_preprocess_images(pil_images, config, return_tensor))
 
     return torch.stack(video_images)

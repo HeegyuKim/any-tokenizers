@@ -1,5 +1,5 @@
 from ..base import BaseImageTokenizer, BaseImageGenerator
-from ..base.utils import load_and_preprocess_images
+from ..base.utils import load_and_preprocess_images, ImagePreprocessConfig
 from typing import List, Union
 from PIL.Image import Image, fromarray
 import numpy as np
@@ -38,12 +38,12 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
         return TiTokImageTokenizer(titok_tokenizer, device)
 
     @torch.no_grad()
-    def encode(self, x: Union[str, Image], **kwargs):
-        return self.batch_encode([x], **kwargs)
+    def encode(self, x: Union[str, Image], config: ImagePreprocessConfig, **kwargs):
+        return self.batch_encode([x], config, **kwargs)[0]
     
     @torch.no_grad()
-    def batch_encode(self, x: List[Union[str, Image]], **kwargs):
-        images = load_and_preprocess_images(x, preprocess_function=TITOK_TRANSFORM)
+    def batch_encode(self, x: List[Union[str, Image]], config: ImagePreprocessConfig = ImagePreprocessConfig(), **kwargs):
+        images = load_and_preprocess_images(x, config=config, return_tensor="pt")
         images = images.to(self.device)
         codes = self.model.encode(images)[1]['min_encoding_indices'].squeeze()
         return codes

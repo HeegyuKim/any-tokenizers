@@ -1,4 +1,4 @@
-from .base import register_auto_tokenizer, AutoAnyTokenizer
+from .base import register_auto_tokenizer, AutoAnyTokenizer, ImagePreprocessConfig
 from .titok import TiTokImageTokenizer
 from .cosmos import (
     CosmosDITokenizer, 

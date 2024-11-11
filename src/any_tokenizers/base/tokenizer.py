@@ -3,6 +3,7 @@ import PIL
 from PIL.Image import Image
 import numpy as np
 import torch
+from .utils import ImagePreprocessConfig
 
 
 
@@ -32,10 +33,10 @@ class BaseAnyGenerator:
 
 class BaseImageTokenizer(BaseAnyTokenizer):
 
-    def encode(self, x: Union[str, Image], **kwargs):
+    def encode(self, x: Union[str, Image], config: ImagePreprocessConfig = ImagePreprocessConfig(), **kwargs):
         raise NotImplementedError
     
-    def batch_encode(self, x: List[Union[str, Image]], **kwargs):
+    def batch_encode(self, x: List[Union[str, Image]], config: ImagePreprocessConfig = ImagePreprocessConfig(), **kwargs):
         raise NotImplementedError
 
 

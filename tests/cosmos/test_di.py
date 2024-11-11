@@ -1,4 +1,4 @@
-from src.any_tokenizers import AutoAnyTokenizer
+from src.any_tokenizers import AutoAnyTokenizer, ImagePreprocessConfig
 import os
 
 
@@ -9,7 +9,11 @@ files = os.listdir("tests/images/")
 files = [os.path.join("tests/images/", f) for f in files]
 print(files)
 
-tokens = [tokenizer.encode(file) for file in files]
+config = ImagePreprocessConfig(
+    max_size=128,
+    crop_size=128,
+)
+tokens = [tokenizer.encode(file, config) for file in files]
 print(tokens)
 print([x.shape for x in tokens])
 
