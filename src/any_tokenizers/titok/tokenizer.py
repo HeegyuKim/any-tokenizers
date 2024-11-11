@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 TITOK_TRANSFORM = transforms.Compose([
     transforms.CenterCrop(256),
     transforms.Resize((256, 256)),
+    # transforms.RGB(),
     transforms.ToTensor()
 ])
 
@@ -38,7 +39,7 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
 
     @torch.no_grad()
     def encode(self, x: Union[str, Image], **kwargs):
-        return self.encode_batch([x], **kwargs)[0]
+        return self.encode_batch([x], **kwargs)
     
     @torch.no_grad()
     def encode_batch(self, x: List[Union[str, Image]], **kwargs):

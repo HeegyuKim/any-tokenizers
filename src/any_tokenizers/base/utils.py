@@ -20,7 +20,7 @@ def load_and_preprocess_images(
         Union[torch.Tensor, Tuple[torch.Tensor]]: Preprocessed images.
     """
 
-    images = [Image.open(img) if isinstance(img, str) else img for img in images]
+    images = [Image.open(img).convert("RGB") if isinstance(img, str) else img for img in images]
     if preprocess_function:
         images = [preprocess_function(img) for img in images]
     
