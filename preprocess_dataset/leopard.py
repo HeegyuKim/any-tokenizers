@@ -5,8 +5,10 @@ from functools import partial
 import jsonlines
 from tqdm.auto import tqdm
 
-tokenizer_name = "yucornetto/tokenizer_titok_l32_imagenet"
+# tokenizer_name = "yucornetto/tokenizer_titok_l32_imagenet"
+tokenizer_name = "nvidia/Cosmos-Tokenizer-DI16x16"
 tokenizer = AutoAnyTokenizer.from_pretrained(tokenizer_name, device="cuda")
+output_dir = "/data3/heegyu/leopard-instruct-cosmos-di16"
 
 def tokenizer_images(item, subset: str):
     # return {
@@ -20,7 +22,6 @@ def tokenizer_images(item, subset: str):
     item["image_tokenizer"] = tokenizer_name
     return item
 
-output_dir = "/data3/heegyu/leopard-instruct/"
 
 for config_name in tqdm(get_dataset_config_names("wyu1/Leopard-Instruct"), desc="Tokenizing", position=0):
     dd = load_dataset("wyu1/Leopard-Instruct", config_name)
