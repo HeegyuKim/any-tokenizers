@@ -39,10 +39,10 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
 
     @torch.no_grad()
     def encode(self, x: Union[str, Image], **kwargs):
-        return self.encode_batch([x], **kwargs)
+        return self.batch_encode([x], **kwargs)
     
     @torch.no_grad()
-    def encode_batch(self, x: List[Union[str, Image]], **kwargs):
+    def batch_encode(self, x: List[Union[str, Image]], **kwargs):
         images = load_and_preprocess_images(x, preprocess_function=TITOK_TRANSFORM)
         images = images.to(self.device)
         codes = self.model.encode(images)[1]['min_encoding_indices'].squeeze()
@@ -51,7 +51,7 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
     @torch.no_grad()
     def decode(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
         if codes.ndim == 1:
-            return self.decode_batch(codes.unsqueeze(0), **kwargs)[0]
+            return self.batch_decode(codes.unsqueeze(0), **kwargs)[0]
         reconstructed_image = self.model.decode_tokens(codes)
         reconstructed_image = torch.clamp(reconstructed_image, 0.0, 1.0)
         reconstructed_image = (reconstructed_image * 255.0).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()[0]
@@ -59,7 +59,7 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
         return reconstructed_image
     
     @torch.no_grad()
-    def decode_batch(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
+    def batch_decode(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
         reconstructed_images = self.model.decode_tokens(codes)
         reconstructed_images = torch.clamp(reconstructed_images, 0.0, 1.0)
         reconstructed_images = (reconstructed_images * 255.0).permute(0, 2, 3, 1).to("cpu", dtype=torch.uint8).numpy()

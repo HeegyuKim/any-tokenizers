@@ -16,7 +16,7 @@ class BaseAnyTokenizer:
     def encode(self, x, **kwargs):
         raise NotImplementedError
     
-    def encode_batch(self, x, **kwargs):
+    def batch_encode(self, x, **kwargs):
         raise NotImplementedError
     
     
@@ -25,7 +25,7 @@ class BaseAnyGenerator:
     def decode(self, codes, **kwargs):
         raise NotImplementedError
     
-    def decode_batch(self, codes, **kwargs):
+    def batch_decode(self, codes, **kwargs):
         raise NotImplementedError
     
 
@@ -35,7 +35,7 @@ class BaseImageTokenizer(BaseAnyTokenizer):
     def encode(self, x: Union[str, Image], **kwargs):
         raise NotImplementedError
     
-    def encode_batch(self, x: List[Union[str, Image]], **kwargs):
+    def batch_encode(self, x: List[Union[str, Image]], **kwargs):
         raise NotImplementedError
 
 
@@ -45,5 +45,5 @@ class BaseImageGenerator(BaseAnyGenerator):
     def decode(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
         raise NotImplementedError
     
-    def decode_batch(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
+    def batch_decode(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
         raise NotImplementedError
