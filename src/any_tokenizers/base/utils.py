@@ -17,6 +17,7 @@ class ImagePreprocessConfig:
         multiple_of (int): Multiple of the image size.
     """
     max_size: int = None
+    min_size: int = None
     crop_size: int = None
     multiple_of: int = 1
     image_type: str = "RGB"
@@ -29,7 +30,11 @@ class ImagePreprocessConfig:
         """
         transform = []
         if self.max_size:
-            transform.append(ConditionalResizeAndCrop(self.max_size, self.crop_size, self.multiple_of))
+            transform.append(ConditionalResizeAndCrop(
+                self.max_size, 
+                self.min_size,
+                self.crop_size, 
+                self.multiple_of))
         transform.append(transforms.ToTensor())
         return transforms.Compose(transform)
 
@@ -66,9 +71,10 @@ def load_and_preprocess_images(
 
 
 class ConditionalResizeAndCrop:
-    def __init__(self, max_size, crop_size=None, multiple_of=1):
+    def __init__(self, max_size, min_size=None, crop_size=None, multiple_of=1):
         self.max_size = max_size
         self.crop_size = crop_size
+        self.min_size = min_size
         self.multiple_of = multiple_of
     
     def make_multiple(self, size):
@@ -92,6 +98,14 @@ class ConditionalResizeAndCrop:
             if new_w != w or new_h != h:
                 img = transforms.Resize((new_h, new_w))(img)
         
+        if self.min_size:
+            w, h = img.size
+            if w < self.min_size or h < self.min_size:
+                ratio = self.min_size / float(min(w, h))
+                new_w = self.make_multiple(int(w * ratio))
+                new_h = self.make_multiple(int(h * ratio))
+                img = transforms.Resize((new_h, new_w))(img)
+
         # 크롭이 필요한 경우
         if self.crop_size:
             w, h = img.size

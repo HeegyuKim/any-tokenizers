@@ -39,7 +39,7 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
 
     @torch.no_grad()
     def encode(self, x: Union[str, Image], config: ImagePreprocessConfig, **kwargs):
-        return self.batch_encode([x], config, **kwargs)[0]
+        return self.batch_encode([x], config, **kwargs)
     
     @torch.no_grad()
     def batch_encode(self, x: List[Union[str, Image]], config: ImagePreprocessConfig = ImagePreprocessConfig(), **kwargs):
