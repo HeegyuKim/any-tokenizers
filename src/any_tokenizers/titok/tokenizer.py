@@ -7,12 +7,12 @@ import torch
 import torchvision.transforms as transforms
 
 
-TITOK_TRANSFORM = transforms.Compose([
-    transforms.CenterCrop(256),
-    transforms.Resize((256, 256)),
-    # transforms.RGB(),
-    transforms.ToTensor()
-])
+# TITOK_TRANSFORM = transforms.Compose([
+#     transforms.CenterCrop(256),
+#     transforms.Resize((256, 256)),
+#     # transforms.RGB(),
+#     transforms.ToTensor()
+# ])
 
 TITOK_MODELS = [
     "yucornetto/tokenizer_titok_l32_imagenet", 
@@ -38,7 +38,7 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
         return TiTokImageTokenizer(titok_tokenizer, device)
 
     @torch.no_grad()
-    def encode(self, x: Union[str, Image], config: ImagePreprocessConfig, **kwargs):
+    def encode(self, x: Union[str, Image], config: ImagePreprocessConfig = ImagePreprocessConfig(), **kwargs):
         return self.batch_encode([x], config, **kwargs)
     
     @torch.no_grad()
@@ -51,6 +51,8 @@ class TiTokImageTokenizer(BaseImageTokenizer, BaseImageGenerator):
     @torch.no_grad()
     def decode(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
         if codes.ndim == 1:
+            if isinstance(codes, np.ndarray):
+                codes = torch.tensor(codes).to(self.device)
             return self.batch_decode(codes.unsqueeze(0), **kwargs)[0]
         reconstructed_image = self.model.decode_tokens(codes)
         reconstructed_image = torch.clamp(reconstructed_image, 0.0, 1.0)

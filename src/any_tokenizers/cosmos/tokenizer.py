@@ -68,6 +68,9 @@ class CosmosDITokenizer(BaseCosmosTokenizer):
     @torch.no_grad()
     def decode(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
         if codes.ndim == 2:
+            if isinstance(codes, np.ndarray):
+                codes = torch.tensor(codes).to(self.device)
+
             return self.batch_decode(codes.unsqueeze(0), **kwargs)[0]
         
         return to_pil_image(self.model.decode(codes).float().cpu()[0])
@@ -93,6 +96,9 @@ class CosmosCITokenizer(BaseCosmosTokenizer):
     @torch.no_grad()
     def decode(self, codes: Union[np.ndarray, torch.Tensor], **kwargs):
         if codes.ndim == 3:
+            if isinstance(codes, np.ndarray):
+                codes = torch.tensor(codes).to(self.device)
+                
             return self.batch_decode(codes.unsqueeze(0), **kwargs)[0]
         
         return to_pil_image(self.model.decode(codes).float().cpu()[0])
